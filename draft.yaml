@@ -1,0 +1,69 @@
+models:
+  Property:
+    ubication_id: unsignedInteger nullable constrained nullOnDelete
+    zone_id: unsignedInteger nullable constrained nullOnDelete
+    development: string:255
+    classification: enum:Lujo,Premium,Gama Media
+    type: enum:Casa,Departamento,Oficina,Local,Hotel,Bodega,Penthouse
+    description: text
+    price: decimal:10,2
+    currency: enum:MDD,MDP
+    area_m2: decimal:10,2
+    contruction_m2: decimal:10,2
+    price_m2: decimal:10,2
+    rooms: unsignedInteger
+    bathrooms: unsignedInteger
+    amenities: text
+    pet_friendly: enum:Si,No
+    family: enum:Infantes,Pareja-Mayor,Pareja-Joven,Familiar,Una-Persona,Negocio
+    view: enum:Carretera,Mar,Selva,Ciudad,Costa
+    operation: enum:Venta,Renta,Traspaso
+    contact: string:255
+    contact_type: enum:Propietarios,Broker
+    contact_data: text
+    comission: decimal:5,2
+    maps: text
+    airbnb_rent: enum:Si,No
+    content: text
+    pdf: text nullable
+    status: boolean
+    relationships:
+      belongsTo: Ubication, Zone
+  
+  Land:
+    ubication_id: unsignedInteger nullable constrained nullOnDelete
+    zone_id: unsignedInteger nullable constrained nullOnDelete
+    classification: enum:Residencial,Unifamiliar,Industrial,Comercial
+    description: text
+    price: decimal:10,2
+    currency: enum:MDD,MDP
+    area: decimal:10,2
+    front: decimal:10,2
+    bottom: decimal:10,2
+    density: string:255
+    soil: string:255
+    view: enum:Carretera,Mar,Selva,Ciudad,Costa
+    operation: enum:Venta,Renta,Traspaso
+    contact: string:255
+    contact_type: enum:Propietarios,Broker
+    contact_data: text
+    comission: decimal:5,2
+    maps: text
+    content: text
+    pdf: text nullable
+    status: boolean
+    relationships: 
+      belongsTo: Ubication, Zone
+
+  Zone:
+    name: string
+    relationships:
+      hasMany:Property
+      hasMany:Land
+
+  Ubication:
+    name: string
+    relationships:
+      hasMany:Property
+      hasMany:Land
+
