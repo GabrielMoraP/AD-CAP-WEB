@@ -10,10 +10,8 @@ class EditUbication extends EditRecord
 {
     protected static string $resource = UbicationResource::class;
 
-    protected function getHeaderActions(): array
+    protected function getRedirectUrl(): string
     {
-        return [
-            
-        ];
+        return $this->previousUrl ?? $this->getResource()::getUrl('index');
     }
 }

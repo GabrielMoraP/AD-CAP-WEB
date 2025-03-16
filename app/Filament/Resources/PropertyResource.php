@@ -140,10 +140,10 @@ class PropertyResource extends Resource
                     ->required()
                     ->options([
                         'Infantes' => 'Infantes',
-                        'Pareja-Mayor' => 'Pareja-Mayor',
-                        'Pareja-Joven' => 'Pareja-Joven',
+                        'Pareja-Mayor' => 'Pareja Mayor',
+                        'Pareja-Joven' => 'Pareja Joven',
                         'Familiar' => 'Familiar',
-                        'Una-Persona' => 'Una-Persona',
+                        'Una-Persona' => 'Una Persona',
                         'Negocio' => 'Negocio',
                     ]),
                 Forms\Components\Select::make('view')
@@ -379,9 +379,7 @@ class PropertyResource extends Resource
                     ->tooltip('Eliminar'),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                
             ]);
     }
 

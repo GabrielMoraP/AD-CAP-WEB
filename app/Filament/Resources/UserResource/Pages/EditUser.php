@@ -10,10 +10,8 @@ class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
 
-    protected function getHeaderActions(): array
+    protected function getRedirectUrl(): string
     {
-        return [
-            
-        ];
+        return $this->previousUrl ?? $this->getResource()::getUrl('index');
     }
 }
