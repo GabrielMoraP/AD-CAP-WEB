@@ -10,10 +10,8 @@ class EditLand extends EditRecord
 {
     protected static string $resource = LandResource::class;
 
-    protected function getHeaderActions(): array
+    protected function getRedirectUrl(): string
     {
-        return [
-            
-        ];
+        return $this->previousUrl ?? $this->getResource()::getUrl('index');
     }
 }

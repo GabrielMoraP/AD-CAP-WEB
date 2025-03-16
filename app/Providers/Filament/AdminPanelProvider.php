@@ -17,6 +17,8 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets;
+use App\Filament\Auth\Login;
+use App\Filament\Pages\Dashboard;
 use App\Filament\Widgets\DashboardWidgets;
 use App\Filament\Resources\LandResource;
 use App\Filament\Resources\PropertyResource;
@@ -32,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('app')
             ->path('/')
-            ->login()
+            ->login(Login::class)
             ->profile()
             ->colors([
                 'primary' => Color::hex('#4e73df'),
@@ -40,7 +42,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->sidebarFullyCollapsibleOnDesktop()
             ->pages([
-                Pages\Dashboard::class,
+                Dashboard::class,
             ])
             ->resources([
                 PropertyResource::class,

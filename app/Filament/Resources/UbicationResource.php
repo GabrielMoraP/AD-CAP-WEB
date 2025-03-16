@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Notifications\Notification;
 
 class UbicationResource extends Resource
 {
@@ -35,10 +36,11 @@ class UbicationResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->unique(ignoreRecord: true)
                     ->label("Nombre")
                     ->helperText('Nombre de la ubicacion.')
                     ->required()
-                    ->unique(ignoreRecord: true)
+                    ->dehydrated(fn ($state) => filled($state))
                     ->validationMessages([
                         'unique' => 'La ubicación ya está registrada.',
                     ])
@@ -72,10 +74,6 @@ class UbicationResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()
-                    ->label('')
-                    ->color('warning')
-                    ->tooltip('Visualizar'),
                 Tables\Actions\EditAction::make()
                     ->label('')
                     ->color('primary')
@@ -83,12 +81,20 @@ class UbicationResource extends Resource
                 Tables\Actions\DeleteAction::make()
                     ->label('')
                     ->color('danger')
-                    ->tooltip('Eliminar'),
+                    ->tooltip('Eliminar')
+                    ->before(function (Tables\Actions\DeleteAction $action, Ubication $record) {
+                        if ($record->properties()->exists() || $record->lands()->exists()) {
+                            Notification::make()
+                                ->title('No se puede eliminar la zona')
+                                ->body('La zona tiene propiedades o terrenos asignados.')
+                                ->danger()
+                                ->send();
+                            $action->cancel();
+                        }
+                    }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                
             ]);
     }
 

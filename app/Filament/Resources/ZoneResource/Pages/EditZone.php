@@ -10,10 +10,8 @@ class EditZone extends EditRecord
 {
     protected static string $resource = ZoneResource::class;
 
-    protected function getHeaderActions(): array
+    protected function getRedirectUrl(): string
     {
-        return [
-            
-        ];
+        return $this->previousUrl ?? $this->getResource()::getUrl('index');
     }
 }

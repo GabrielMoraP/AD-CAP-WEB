@@ -10,10 +10,8 @@ class EditProperty extends EditRecord
 {
     protected static string $resource = PropertyResource::class;
 
-    protected function getHeaderActions(): array
+    protected function getRedirectUrl(): string
     {
-        return [
-            
-        ];
+        return $this->previousUrl ?? $this->getResource()::getUrl('index');
     }
 }

@@ -20,31 +20,51 @@ class DashboardWidgets extends BaseWidget
                 ->description('Numero total de usuarios')
                 ->descriptionIcon('heroicon-o-users', IconPosition::Before)
                 ->chart([0, User::count()])
-                ->color('primary'),
+                ->color('primary')
+                ->extraAttributes([
+                    'onclick' => "window.location.href = '/users';",
+                    'class' => 'transition hover:text-primary-500 cursor-pointer',
+                ]),
 
             Stat::make('Propiedades', Property::count())
                 ->description('Numero total de propiedades')
                 ->descriptionIcon('heroicon-o-building-office', IconPosition::Before)
                 ->chart([0, Property::count()])
-                ->color('primary'),
+                ->color('primary')
+                ->extraAttributes([
+                    'onclick' => "window.location.href = '/properties';",
+                    'class' => 'transition hover:text-primary-500 cursor-pointer',
+                ]),
 
             Stat::make('Terrenos', Land::count())
                 ->description('Numero total de terrenos')
                 ->descriptionIcon('heroicon-o-map', IconPosition::Before)
                 ->chart([0, Land::count()])
-                ->color('primary'),
+                ->color('primary')
+                ->extraAttributes([
+                    'onclick' => "window.location.href = '/lands';",
+                    'class' => 'transition hover:text-primary-500 cursor-pointer',
+                ]),
 
             Stat::make('Ubicaciones', Ubication::count())
                 ->description('Numero total de ubicaciones')
                 ->descriptionIcon('heroicon-o-bookmark', IconPosition::Before)
                 ->chart([0, Ubication::count()])
-                ->color('primary'),
+                ->color('primary')
+                ->extraAttributes([
+                    'onclick' => "window.location.href = '/ubications';",
+                    'class' => 'transition hover:text-primary-500 cursor-pointer',
+                ]),
 
             Stat::make('Zonas', Zone::count())
                 ->description('Numero total de zonas')
                 ->descriptionIcon('heroicon-o-tag', IconPosition::Before)
                 ->chart([0, Zone::count()])
-                ->color('primary'),
+                ->color('primary')
+                ->extraAttributes([
+                    'onclick' => "window.location.href = '/zones';",
+                    'class' => 'transition hover:text-primary-500 cursor-pointer',
+                ]),
         ];
     }
 }

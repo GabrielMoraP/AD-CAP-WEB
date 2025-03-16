@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Property;
+use App\Models\Land;
 
 class Ubication extends Model
 {
@@ -26,4 +29,14 @@ class Ubication extends Model
     protected $casts = [
         'id' => 'integer',
     ];
+
+    public function properties(): HasMany
+    {
+        return $this->hasMany(Property::class, 'zone_id');
+    }
+
+    public function lands(): HasMany
+    {
+        return $this->hasMany(Land::class, 'zone_id');
+    }
 }
