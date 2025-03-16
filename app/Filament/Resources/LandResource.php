@@ -25,10 +25,15 @@ class LandResource extends Resource
     protected static ?string $navigationGroup = 'Terrenos';
     protected static ?string $modelLabel = 'Terreno';
     protected static ?string $pluralModelLabel = 'Terrenos';
+
     public static function getNavigationBadge(): ?string
     {
+        if (auth()->user()->role === 'Consultor') {
+            return static::getModel()::where('status', true)->count();
+        }
         return static::getModel()::count();
     }
+
     public static function getNavigationBadgeTooltip(): ?string
     {
         return 'Numero de terrenos';
