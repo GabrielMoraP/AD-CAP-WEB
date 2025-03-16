@@ -48,7 +48,7 @@ class PropertyFactory extends Factory
             'maps' => fake()->name(),
             'airbnb_rent' => fake()->randomElement(["Si","No"]),
             'content' => fake()->paragraphs(3, true),
-            'pdf' => fake()->name(),
+            'pdf' => '',
             'status' => fake()->boolean(),
         ];
     }
