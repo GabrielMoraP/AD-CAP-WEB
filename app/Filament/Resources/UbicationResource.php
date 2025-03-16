@@ -48,6 +48,30 @@ class UbicationResource extends Resource
             ]);
     }
 
+    public static function canView($record): bool
+    {
+        return auth()->user()->role === 'Administrador' 
+            || auth()->user()->role === 'Editor'
+            || auth()->user()->role === 'Consultor';
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->role === 'Administrador' 
+            || auth()->user()->role === 'Editor';
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->role === 'Administrador' 
+            || auth()->user()->role === 'Editor';
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->role === 'Administrador';
+    }
+
     public static function table(Table $table): Table
     {
         return $table

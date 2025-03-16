@@ -42,7 +42,7 @@ class LandFactory extends Factory
             'comission' => fake()->randomFloat(2, 0, 999.99),
             'maps' => fake()->name(),
             'content' => fake()->paragraphs(3, true),
-            'pdf' => fake()->name(),
+            'pdf' => '',
             'status' => fake()->boolean(),
         ];
     }

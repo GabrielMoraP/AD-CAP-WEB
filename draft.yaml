@@ -1,7 +1,7 @@
 models:
   Property:
-    ubication_id: unsignedInteger nullable constrained nullOnDelete
-    zone_id: unsignedInteger nullable constrained nullOnDelete
+    ubication_id: unsignedInteger nullable
+    zone_id: unsignedInteger nullable
     development: string:255
     classification: enum:Lujo,Premium,Gama Media
     type: enum:Casa,Departamento,Oficina,Local,Hotel,Bodega,Penthouse
@@ -10,46 +10,46 @@ models:
     currency: enum:MDD,MDP
     area_m2: decimal:10,2
     contruction_m2: decimal:10,2
-    price_m2: decimal:10,2
     rooms: unsignedInteger
     bathrooms: unsignedInteger
-    amenities: text
     pet_friendly: enum:Si,No
     family: enum:Infantes,Pareja-Mayor,Pareja-Joven,Familiar,Una-Persona,Negocio
     view: enum:Carretera,Mar,Selva,Ciudad,Costa
     operation: enum:Venta,Renta,Traspaso
-    contact: string:255
     contact_type: enum:Propietarios,Broker
+    contact: string:255
     contact_data: text
     comission: decimal:5,2
-    maps: text
     airbnb_rent: enum:Si,No
-    content: text
+    price_m2: decimal:10,2 nullable
+    amenities: text nullable
+    maps: text nullable
+    content: text nullable
     pdf: text nullable
     status: boolean
     relationships:
       belongsTo: Ubication, Zone
-  
+
   Land:
-    ubication_id: unsignedInteger nullable constrained nullOnDelete
-    zone_id: unsignedInteger nullable constrained nullOnDelete
+    ubication_id: unsignedInteger nullable
+    zone_id: unsignedInteger nullable
     classification: enum:Residencial,Unifamiliar,Industrial,Comercial
     description: text
     price: decimal:10,2
     currency: enum:MDD,MDP
     area: decimal:10,2
-    front: decimal:10,2
-    bottom: decimal:10,2
-    density: string:255
-    soil: string:255
     view: enum:Carretera,Mar,Selva,Ciudad,Costa
     operation: enum:Venta,Renta,Traspaso
-    contact: string:255
     contact_type: enum:Propietarios,Broker
+    contact: string:255
     contact_data: text
     comission: decimal:5,2
-    maps: text
-    content: text
+    front: decimal:10,2 nullable
+    bottom: decimal:10,2 nullable
+    density: string:255 nullable
+    soil: string:255 nullable
+    maps: text nullable
+    content: text nullable
     pdf: text nullable
     status: boolean
     relationships: 
@@ -66,4 +66,3 @@ models:
     relationships:
       hasMany:Property
       hasMany:Land
-

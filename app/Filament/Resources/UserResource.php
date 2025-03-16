@@ -32,85 +32,123 @@ class UserResource extends Resource
         return 'Numero de usuarios';
     }
 
+    public static function canAccess(): bool
+    {
+        $user = auth()->user();
+        return $user && $user->role === 'Administrador';
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->role === 'Administrador' 
+            || auth()->user()->role === 'Editor'
+            || auth()->user()->role === 'Consultor';
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->role === 'Administrador' 
+            || auth()->user()->role === 'Editor';
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->role === 'Administrador' 
+            || auth()->user()->role === 'Editor';
+    }
+
+    public static function canDelete($record): bool
+    {
+        if ($record->name === 'Administrador') {
+            return false;
+        }
+        return auth()->user()->role === 'Administrador';
+    }
+
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->label('Nombre')
-                    ->helperText('Nombre completo.')
-                    ->required()
-                    ->dehydrated(fn ($state) => filled($state))
-                    ->maxLength(255),
+        $isAdministrador = $form->getRecord()?->name === 'Administrador';
 
-                Forms\Components\TextInput::make('user')
-                    ->unique(ignoreRecord: true)
-                    ->label('Usuario')
-                    ->helperText('Nombre de usuario.')
-                    ->required()
-                    ->dehydrated(fn ($state) => filled($state))
-                    ->validationMessages([
-                        'unique' => 'El correo ya esta registrado por otro usuario.',
-                    ])
-                    ->maxLength(255),
-                
-                Forms\Components\Select::make('role')
-                    ->label('Rol')
-                    ->helperText('Rol del usuario.')
-                    ->required()
-                    ->dehydrated(fn ($state) => filled($state))
-                    ->options([
-                        'Administrador' => 'Administrador',
-                        'Editor' => 'Editor',
-                        'Consultor' => 'Consultor',
-                    ]),
+        $formFields = [
+            Forms\Components\TextInput::make('name')
+                ->label('Nombre')
+                ->helperText('Nombre completo.')
+                ->required()
+                ->dehydrated(fn ($state) => filled($state))
+                ->maxLength(255),
 
-                Forms\Components\Select::make('avatar')
-                    ->label("Avatar")
-                    ->helperText('Avatar del usuario.')
-                    ->required()
-                    ->dehydrated(fn ($state) => filled($state))
-                    ->searchable()
-                    ->allowHtml()
-                    ->options([
-                        1 => '<img src="' . env('APP_URL') . '/storage/avatars/1.png" width="50" height="50">',
-                        2 => '<img src="' . env('APP_URL') . '/storage/avatars/2.png" width="50" height="50">',
-                        3 => '<img src="' . env('APP_URL') . '/storage/avatars/3.png" width="50" height="50">',
-                        4 => '<img src="' . env('APP_URL') . '/storage/avatars/4.png" width="50" height="50">',
-                        5 => '<img src="' . env('APP_URL') . '/storage/avatars/5.png" width="50" height="50">',
-                        6 => '<img src="' . env('APP_URL') . '/storage/avatars/6.png" width="50" height="50">',
-                    ])
-                    ->validationMessages([
-                        'required' => 'El campo de avatar es obligatorio.',
-                    ]),                
+            Forms\Components\TextInput::make('user')
+                ->unique(ignoreRecord: true)
+                ->label('Usuario')
+                ->helperText('Nombre de usuario.')
+                ->required()
+                ->dehydrated(fn ($state) => filled($state))
+                ->validationMessages([
+                    'unique' => 'El correo ya esta registrado por otro usuario.',
+                ])
+                ->maxLength(255),
 
-                Forms\Components\TextInput::make('password')
-                    ->label('Nueva contraseña')
-                    ->helperText('Ingrese una nueva contraseña.')
-                    ->required(fn ($livewire) => $livewire instanceof Pages\CreateUser)
-                    ->dehydrated(fn ($state) => filled($state))
-                    ->password()
-                    ->revealable()
-                    ->minLength(8)
-                    ->maxLength(255)
-                    ->autocomplete('new-password')
-                    ->same('password_confirmation')
-                    ->validationMessages([
-                        'same' => 'Las contraseñas no coinciden.',
-                    ]),
-                
-                Forms\Components\TextInput::make('password_confirmation')
-                    ->label('Confirmar contraseña')
-                    ->helperText('Confirme su contraseña.')
-                    ->required(fn ($livewire) => $livewire instanceof Pages\CreateUser)
-                    ->dehydrated(false)
-                    ->password()
-                    ->revealable()
-                    ->minLength(8)
-                    ->maxLength(255)
-                    ->autocomplete('new-password'),
-            ]);
+            ! $isAdministrador ? Forms\Components\Select::make('role')
+                ->label('Rol')
+                ->helperText('Rol del usuario.')
+                ->required()
+                ->dehydrated(fn ($state) => filled($state))
+                ->options([
+                    'Administrador' => 'Administrador',
+                    'Editor' => 'Editor',
+                    'Consultor' => 'Consultor',
+                ]) : null,
+
+            Forms\Components\Select::make('avatar')
+                ->label("Avatar")
+                ->helperText('Avatar del usuario.')
+                ->required()
+                ->dehydrated(fn ($state) => filled($state))
+                ->searchable()
+                ->allowHtml()
+                ->options([
+                    1 => '<img src="' . env('APP_URL') . '/storage/avatars/1.png" width="50" height="50">',
+                    2 => '<img src="' . env('APP_URL') . '/storage/avatars/2.png" width="50" height="50">',
+                    3 => '<img src="' . env('APP_URL') . '/storage/avatars/3.png" width="50" height="50">',
+                    4 => '<img src="' . env('APP_URL') . '/storage/avatars/4.png" width="50" height="50">',
+                    5 => '<img src="' . env('APP_URL') . '/storage/avatars/5.png" width="50" height="50">',
+                    6 => '<img src="' . env('APP_URL') . '/storage/avatars/6.png" width="50" height="50">',
+                ])
+                ->validationMessages([
+                    'required' => 'El campo de avatar es obligatorio.',
+                ]),
+
+            Forms\Components\TextInput::make('password')
+                ->label('Nueva contraseña')
+                ->helperText('Ingrese una nueva contraseña.')
+                ->required(fn ($livewire) => $livewire instanceof Pages\CreateUser)
+                ->dehydrated(fn ($state) => filled($state))
+                ->password()
+                ->revealable()
+                ->minLength(8)
+                ->maxLength(255)
+                ->autocomplete('new-password')
+                ->same('password_confirmation')
+                ->validationMessages([
+                    'same' => 'Las contraseñas no coinciden.',
+                ]),
+
+            Forms\Components\TextInput::make('password_confirmation')
+                ->label('Confirmar contraseña')
+                ->helperText('Confirme su contraseña.')
+                ->required(fn ($livewire) => $livewire instanceof Pages\CreateUser)
+                ->dehydrated(false)
+                ->password()
+                ->revealable()
+                ->minLength(8)
+                ->maxLength(255)
+                ->autocomplete('new-password'),
+        ];
+
+        // Retorna el formulario solo con los campos disponibles
+        return $form->schema(array_filter($formFields));
     }
+
 
     public static function table(Table $table): Table
     {

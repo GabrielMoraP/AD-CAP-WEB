@@ -29,17 +29,6 @@ class EditProfile extends BaseEditProfile
                         'unique' => 'El correo ya esta registrado por otro usuario.',
                     ])
                     ->maxLength(255),
-                
-                Forms\Components\Select::make('role')
-                    ->label('Rol')
-                    ->helperText('Rol del usuario.')
-                    ->required()
-                    ->dehydrated(fn ($state) => filled($state))
-                    ->options([
-                        'Administrador' => 'Administrador',
-                        'Editor' => 'Editor',
-                        'Consultor' => 'Consultor',
-                    ]),
 
                 Forms\Components\Select::make('avatar')
                     ->label("Avatar")
