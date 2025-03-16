@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('user')->unique();
             $table->string('password');
             $table->enum('role', ["Administrador","Editor","Consultor"]);
+            $table->unsignedTinyInteger('avatar')->default(1);
             $table->rememberToken();
             $table->timestamps();
         });
