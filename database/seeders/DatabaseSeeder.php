@@ -20,18 +20,21 @@ class DatabaseSeeder extends Seeder
             'user' => 'Administrador',
             'role' => 'Administrador',
             'password' => bcrypt('Administrador'),
+            'avatar' => 1,
         ]);
         User::create([
             'name' => 'Editor',
             'user' => 'Editor',
             'role' => 'Editor',
             'password' => bcrypt('Editor'),
+            'avatar' => 2,
         ]);
         User::create([
             'name' => 'Consultor',
             'user' => 'Consultor',
             'role' => 'Consultor',
             'password' => bcrypt('Consultor'),
+            'avatar' => 3,
         ]);
         Land::factory()->count(5)->create();
         Property::factory()->count(5)->create();

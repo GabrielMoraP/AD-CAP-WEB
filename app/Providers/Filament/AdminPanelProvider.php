@@ -19,6 +19,7 @@ use Filament\Support\Colors\Color;
 use Filament\Widgets;
 use App\Filament\Auth\Login;
 use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Widgets\DashboardWidgets;
 use App\Filament\Resources\LandResource;
 use App\Filament\Resources\PropertyResource;
@@ -35,12 +36,13 @@ class AdminPanelProvider extends PanelProvider
             ->id('app')
             ->path('/')
             ->login(Login::class)
-            ->profile()
+            ->profile(EditProfile::class)
             ->colors([
                 'primary' => Color::hex('#4e73df'),
                 'gray' => Color::Slate,
             ])
             ->sidebarFullyCollapsibleOnDesktop()
+            ->font('Poppins')
             ->pages([
                 Dashboard::class,
             ])
