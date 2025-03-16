@@ -11,6 +11,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use AlperenErsoy\FilamentExport\Actions\FilamentExportHeaderAction;
+use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Storage;
@@ -225,6 +227,17 @@ class PropertyResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->headerActions([
+                FilamentExportHeaderAction::make('Exportar')
+                    ->disableAdditionalColumns()
+                    ->disablePreview()
+                    ->color('success')
+            ])
+            ->toggleColumnsTriggerAction(
+                fn (Action $action) => $action
+                    ->button()
+                    ->label('Columnas'),
+            )
             ->columns([
                 Tables\Columns\TextColumn::make('ubication.name')
                     ->label('Ubicación')
@@ -379,7 +392,10 @@ class PropertyResource extends Resource
                     ->tooltip('Eliminar'),
             ])
             ->bulkActions([
-                
+                FilamentExportBulkAction::make('Exportar')
+                    ->disableAdditionalColumns()
+                    ->disablePreview()
+                    ->color('success'),
             ]);
     }
 
