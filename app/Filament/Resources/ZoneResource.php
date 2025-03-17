@@ -22,10 +22,12 @@ class ZoneResource extends Resource
     protected static ?string $navigationGroup = 'Zonas';
     protected static ?string $modelLabel = 'Zona';
     protected static ?string $pluralModelLabel = 'Zonas';
+
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
     }
+    
     public static function getNavigationBadgeTooltip(): ?string
     {
         return 'Numero de zonas';

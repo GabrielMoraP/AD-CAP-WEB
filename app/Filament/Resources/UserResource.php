@@ -65,6 +65,17 @@ class UserResource extends Resource
         return auth()->user()->role === 'Administrador';
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        if (auth()->user()->name === 'Administrador') {
+            return $query;
+        }
+
+        return $query->where('role', '!=', "Administrador");
+    }
+
     public static function form(Form $form): Form
     {
         $isAdministrador = $form->getRecord()?->name === 'Administrador';
@@ -166,7 +177,7 @@ class UserResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 Tables\Columns\TextColumn::make('user')
-                    ->label('Correo Electrónico')
+                    ->label('Usuario')
                     ->searchable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
