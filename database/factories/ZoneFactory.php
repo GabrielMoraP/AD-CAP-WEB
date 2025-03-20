@@ -10,6 +10,7 @@ class ZoneFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
+     * This defines which model the factory is used for, in this case, the `Zone` model.
      *
      * @var string
      */
@@ -17,11 +18,12 @@ class ZoneFactory extends Factory
 
     /**
      * Define the model's default state.
+     * This method sets the default state for the `Zone` model, defining the attributes that will be used when creating a new zone.
      */
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'name' => fake()->name(),  // Generates a random name for the zone
         ];
     }
 }

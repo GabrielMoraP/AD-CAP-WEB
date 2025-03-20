@@ -14,29 +14,45 @@ class Ubication extends Model
 
     /**
      * The attributes that are mass assignable.
+     * This array specifies which attributes can be assigned in bulk (mass assignment).
      *
      * @var array
      */
     protected $fillable = [
-        'name',
+        'name',  // Name of the Ubication
     ];
 
     /**
      * The attributes that should be cast to native types.
+     * This array specifies how certain attributes should be cast to native types like integers.
      *
      * @var array
      */
     protected $casts = [
-        'id' => 'integer',
+        'id' => 'integer',  // Cast the ID to an integer
     ];
 
+    /**
+     * Define the relationship between Ubication and Property.
+     * This method defines the one-to-many relationship between Ubication and Property.
+     * A Ubication can have many properties.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function properties(): HasMany
     {
-        return $this->hasMany(Property::class, 'zone_id');
+        return $this->hasMany(Property::class, 'ubication_id'); // A ubication can have many properties
     }
 
+    /**
+     * Define the relationship between Ubication and Land.
+     * This method defines the one-to-many relationship between Ubication and Land.
+     * A Ubication can have many lands.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function lands(): HasMany
     {
-        return $this->hasMany(Land::class, 'zone_id');
+        return $this->hasMany(Land::class, 'ubication_id'); // A ubication can have many lands
     }
 }

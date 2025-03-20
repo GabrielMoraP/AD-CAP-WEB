@@ -10,6 +10,7 @@ class UbicationFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
+     * This defines which model the factory is creating instances of.
      *
      * @var string
      */
@@ -17,11 +18,12 @@ class UbicationFactory extends Factory
 
     /**
      * Define the model's default state.
+     * This method specifies the default values for the attributes of the Ubication model.
      */
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'name' => fake()->name(),  // Generates a random name for the Ubication model
         ];
     }
 }
