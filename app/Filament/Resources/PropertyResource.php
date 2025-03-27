@@ -11,6 +11,11 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Indicator;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use AlperenErsoy\FilamentExport\Actions\FilamentExportHeaderAction;
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use Illuminate\Database\Eloquent\Builder;
@@ -172,6 +177,7 @@ class PropertyResource extends Resource
                         ->helperText('Precio de venta o renta del inmueble.')
                         ->required()
                         ->numeric()
+                        ->minValue(0)
                         ->prefix('$'),
 
                     // "Moneda" field: Select input for the currency (MXN or USD)
@@ -189,28 +195,32 @@ class PropertyResource extends Resource
                         ->label('Área (m²)')
                         ->helperText('Área total del terreno o propiedad en metros cuadrados.')
                         ->required()
-                        ->numeric(),
+                        ->numeric()
+                        ->minValue(0),
 
                     // "Construcción (m²)" field: Numeric input for the constructed area
                     Forms\Components\TextInput::make('contruction_m2')
                         ->label('Construcción (m²)')
                         ->helperText('Área construida del inmueble en metros cuadrados.')
                         ->required()
-                        ->numeric(),
+                        ->numeric()
+                        ->minValue(0),
 
                     // "Habitaciones" field: Numeric input for the number of rooms in the property
                     Forms\Components\TextInput::make('rooms')
                         ->label('Habitaciones')
                         ->helperText('Número de habitaciones del inmueble.')
                         ->required()
-                        ->numeric(),
+                        ->numeric()
+                        ->minValue(0),
 
                     // "Baños" field: Numeric input for the number of bathrooms in the property
                     Forms\Components\TextInput::make('bathrooms')
                         ->label('Baños')
                         ->helperText('Número de baños del inmueble.')
                         ->required()
-                        ->numeric(),
+                        ->numeric()
+                        ->minValue(0),
 
                     // "Acepta Mascotas" field: Select input for pet-friendly status
                     Forms\Components\Select::make('pet_friendly')
@@ -289,7 +299,8 @@ class PropertyResource extends Resource
                         ->label('Comisión')
                         ->helperText('Porcentaje o monto de la comisión.')
                         ->required()
-                        ->numeric(),
+                        ->numeric()
+                        ->minValue(0),
 
                     // "Renta Airbnb" field: Select input for indicating if the property is available for Airbnb rental
                     Forms\Components\Select::make('airbnb_rent')
@@ -309,7 +320,8 @@ class PropertyResource extends Resource
                     Forms\Components\TextInput::make('price_m2')
                         ->label('Precio por m²')
                         ->helperText('Precio por metro cuadrado del inmueble.')
-                        ->numeric(),
+                        ->numeric()
+                        ->minValue(0),
 
                     // "Amenidades" field: Textarea for additional amenities of the property
                     Forms\Components\Textarea::make('amenities')
@@ -550,10 +562,105 @@ class PropertyResource extends Resource
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            // Define any table filters (none in this case)
+            // Define any table filters
             ->filters([
-                //
-            ])
+                // Ubication Filter
+                SelectFilter::make('ubication')
+                    ->relationship('ubication', 'name')
+                    ->label('Ubicación')
+                    ->searchable()
+                    ->multiple()
+                    ->preload(),
+
+                // Zone Filter
+                SelectFilter::make('zone')
+                    ->relationship('zone', 'name')
+                    ->label('Zona')
+                    ->searchable()
+                    ->multiple()
+                    ->preload(),
+
+                // Price Filter
+                Filter::make('price')
+                    ->form([
+                        Forms\Components\TextInput::make('min')
+                            ->label('Precio Mínimo')
+                            ->numeric()
+                            ->inputMode('decimal')
+                            ->minValue(0)
+                            ->default(0)
+                            ->prefix('$')
+                            ->placeholder('Mínimo'),
+                        Forms\Components\TextInput::make('max')
+                            ->label('Precio Máximo')
+                            ->numeric()
+                            ->inputMode('decimal')
+                            ->minValue(0)
+                            ->default(0)
+                            ->prefix('$')
+                            ->placeholder('Máximo')
+                            ->rules(['gte:min'])
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (isset($data['min'], $data['max']) && $data['min'] > $data['max']) {
+                            Notification::make()
+                                ->title('Error en filtro de precios')
+                                ->body('El precio máximo no puede ser menor que el mínimo')
+                                ->warning()
+                                ->send();
+                            
+                            return $query;
+                        }
+                        return $query
+                            ->when(
+                                $data['min'] ?? null,
+                                fn (Builder $query, $min): Builder => $query->where('price', '>=', $min),
+                            )
+                            ->when(
+                                $data['max'] ?? null,
+                                fn (Builder $query, $max): Builder => $query->where('price', '<=', $max),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+        
+                        if (!isset($data['min'], $data['max']) || $data['min'] <= $data['max']) {
+                            if ($data['min'] ?? null) {
+                                $indicators[] = Indicator::make('Precio mínimo: $' . number_format($data['min'], 2))
+                                    ->removeField('min');
+                            }
+
+                            if ($data['max'] ?? null) {
+                                $indicators[] = Indicator::make('Precio máximo: $' . number_format($data['max'], 2))
+                                    ->removeField('max');
+                            }
+                        }
+
+                        return $indicators;
+                    }),
+
+                //  Currency Filter
+                SelectFilter::make('currency')
+                    ->label('Moneda')
+                    ->options([
+                        'MDP' => 'MDP',
+                        'MDD' => 'MDD',
+                    ])
+                    ->preload(),
+
+                //Filter Layout
+                ], layout: FiltersLayout::Modal)
+
+            // Defer filter changes from affecting the table, until the user clicks an “Apply” button
+            ->deferFilters()
+
+            // Button and name for filters action
+            ->filtersTriggerAction(
+                fn (Action $action) => $action
+                    ->button()
+                    ->label('Filtros'),
+            )
+
             // Define actions for individual records (like view, edit, delete)
             ->actions([
                 // Action to download PDF if the record has a PDF file
