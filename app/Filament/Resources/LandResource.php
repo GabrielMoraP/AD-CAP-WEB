@@ -11,6 +11,11 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Notifications\Notification;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Indicator;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use AlperenErsoy\FilamentExport\Actions\FilamentExportHeaderAction;
 use AlperenErsoy\FilamentExport\Actions\FilamentExportBulkAction;
 use Illuminate\Database\Eloquent\Builder;
@@ -152,6 +157,7 @@ class LandResource extends Resource
                             ->helperText('Precio de venta o renta del inmueble.')
                             ->required()
                             ->numeric()
+                            ->minValue(0)
                             ->prefix('$'),
 
                         // Dropdown to select the currency in which the price is expressed
@@ -170,6 +176,7 @@ class LandResource extends Resource
                             ->helperText('Área total del terreno en metros cuadrados.')
                             ->required()
                             ->numeric()
+                            ->minValue(0)
                             ->inputMode('decimal'),
 
                         // Dropdown for selecting the type of view the land offers
@@ -226,6 +233,7 @@ class LandResource extends Resource
                             ->helperText('Porcentaje o monto de la comisión.')
                             ->required()
                             ->numeric()
+                            ->minValue(0)
                             ->inputMode('decimal'),
                     ]),
 
@@ -237,6 +245,7 @@ class LandResource extends Resource
                             ->label("Frente")
                             ->helperText('Medida del frente del terreno en metros.')
                             ->numeric()
+                            ->minValue(0)
                             ->inputMode('decimal'),
 
                         // Text input for the depth (bottom) measurement of the land
@@ -244,6 +253,7 @@ class LandResource extends Resource
                             ->label("Fondo")
                             ->helperText('Medida del fondo del terreno en metros.')
                             ->numeric()
+                            ->minValue(0)
                             ->inputMode('decimal'),
 
                         // Text input for the density allowed in the land zone
@@ -458,10 +468,104 @@ class LandResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
 
-            // Define table filters (empty for now)
+            // Define any table filters
             ->filters([
-                // Add filters here
-            ])
+                // Ubication Filter
+                SelectFilter::make('ubication')
+                    ->relationship('ubication', 'name')
+                    ->label('Ubicación')
+                    ->searchable()
+                    ->multiple()
+                    ->preload(),
+
+                // Zone Filter
+                SelectFilter::make('zone')
+                    ->relationship('zone', 'name')
+                    ->label('Zona')
+                    ->searchable()
+                    ->multiple()
+                    ->preload(),
+
+                // Price Filter
+                Filter::make('price')
+                    ->form([
+                        Forms\Components\TextInput::make('min')
+                            ->label('Precio Mínimo')
+                            ->numeric()
+                            ->inputMode('decimal')
+                            ->minValue(0)
+                            ->default(0)
+                            ->prefix('$')
+                            ->placeholder('Mínimo'),
+                        Forms\Components\TextInput::make('max')
+                            ->label('Precio Máximo')
+                            ->numeric()
+                            ->inputMode('decimal')
+                            ->minValue(0)
+                            ->default(0)
+                            ->prefix('$')
+                            ->placeholder('Máximo')
+                            ->rules(['gte:min'])
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (isset($data['min'], $data['max']) && $data['min'] > $data['max']) {
+                            Notification::make()
+                                ->title('Error en filtro de precios')
+                                ->body('El precio máximo no puede ser menor que el mínimo')
+                                ->warning()
+                                ->send();
+                            
+                            return $query;
+                        }
+                        return $query
+                            ->when(
+                                $data['min'] ?? null,
+                                fn (Builder $query, $min): Builder => $query->where('price', '>=', $min),
+                            )
+                            ->when(
+                                $data['max'] ?? null,
+                                fn (Builder $query, $max): Builder => $query->where('price', '<=', $max),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+        
+                        if (!isset($data['min'], $data['max']) || $data['min'] <= $data['max']) {
+                            if ($data['min'] ?? null) {
+                                $indicators[] = Indicator::make('Precio mínimo: $' . number_format($data['min'], 2))
+                                    ->removeField('min');
+                            }
+
+                            if ($data['max'] ?? null) {
+                                $indicators[] = Indicator::make('Precio máximo: $' . number_format($data['max'], 2))
+                                    ->removeField('max');
+                            }
+                        }
+
+                        return $indicators;
+                    }),
+
+                //  Currency Filter
+                SelectFilter::make('currency')
+                    ->label('Moneda')
+                    ->options([
+                        'MDP' => 'MDP',
+                        'MDD' => 'MDD',
+                    ])
+                    ->preload(),
+
+                //Filter Layout
+                ], layout: FiltersLayout::Modal)
+
+            // Defer filter changes from affecting the table, until the user clicks an “Apply” button
+            ->deferFilters()
+
+            // Button and name for filters action
+            ->filtersTriggerAction(
+                fn (Action $action) => $action
+                    ->button()
+                    ->label('Filtros'),
+            )
 
             // Define actions available for each record in the table
             ->actions([
